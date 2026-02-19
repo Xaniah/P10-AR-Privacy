@@ -1,3 +1,4 @@
+# Source: https://medium.com/@ahmetcan7754/i-converted-the-wider-face-detection-dataset-to-yolo12-format-8b47d1ec8c88
 import os
 from PIL import Image
 
