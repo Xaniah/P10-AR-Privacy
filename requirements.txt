@@ -4,3 +4,5 @@ pillow==12.1.1
 torch
 torchvision
 pylabel==0.1.55
+kagglehub==1.0.0
+fiftyone==1.13.2
