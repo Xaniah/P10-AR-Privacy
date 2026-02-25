@@ -6,3 +6,4 @@ torchvision
 pylabel==0.1.55
 kagglehub==1.0.0
 fiftyone==1.13.2
+tqdm=4.67.3
