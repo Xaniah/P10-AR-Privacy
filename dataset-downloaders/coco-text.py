@@ -29,7 +29,7 @@ def download_images():
         os.rename(target_dir / "coco2014/images", target_dir / "images")
 
     if os.path.exists(target_dir / "images/test2014"):
-        os.remove(target_dir / "images/test2014")
+        shutil.rmtree(target_dir / "images/test2014")
 
     if os.path.exists(target_dir / "coco2014"):
         shutil.rmtree(target_dir / "coco2014")
