@@ -13,17 +13,19 @@ labels = "https://github.com/bgshih/cocotext/releases/download/dl/cocotext.v2.zi
 labels_path = target_dir / "cocotext.v2.json"
 
 class_mappings = {
-    "machine printed": 0,
-    "handwritten": 1,
-    "others": 2,
+    "machine printed": "0",
+    "handwritten": "1",
+    "others": "2",
 }
 
 if os.path.exists(target_dir / "labels"):
     shutil.rmtree(target_dir / "labels")
 
 def download_images():
+    was_downloaded = not os.path.exists(target_dir / ".complete")
+    
     # Download latest version
-    images_path = kagglehub.dataset_download("jeffaudi/coco-2014-dataset-for-yolov3", output_dir=target_dir)
+    kagglehub.dataset_download("jeffaudi/coco-2014-dataset-for-yolov3", output_dir=target_dir)
 
     if os.path.exists(target_dir / "coco2014/images"):
         os.rename(target_dir / "coco2014/images", target_dir / "images")
@@ -31,10 +33,12 @@ def download_images():
     if os.path.exists(target_dir / "images/test2014"):
         shutil.rmtree(target_dir / "images/test2014")
 
+    if was_downloaded and os.path.exists(target_dir / "images/val2014"):
+        shutil.rmtree(target_dir / "images/val2014")
+        os.mkdir(target_dir / "images/val2014")
+
     if os.path.exists(target_dir / "coco2014"):
         shutil.rmtree(target_dir / "coco2014")
-
-
 
 def download_labels():
     os.makedirs(target_dir / "labels/train2014", exist_ok=True)
@@ -65,8 +69,14 @@ def download_labels():
     for image_id, str_to_write in tqdm(strs_to_write.items()):
         image = images[str(image_id)]
         image_set = image["set"]
-        with open(f"{target_dir}/labels/{image_set}2014/{os.path.splitext(image["file_name"].replace("train", image_set))[0] + ".txt"}", "a+") as f:
+        correct_image_name = image["file_name"].replace("train", image_set)
+
+        with open(f"{target_dir}/labels/{image_set}2014/{os.path.splitext(correct_image_name)[0] + ".txt"}", "a+") as f:
             f.write("\n".join(str_to_write))
+
+        # COCO-text partitions the training images from COCO2014 into train and validation.
+        if os.path.exists(target_dir / f"images/train2014/{image["file_name"]}"):
+            os.rename(target_dir / f"images/train2014/{image["file_name"]}", target_dir / f"images/{image_set}2014/{correct_image_name}")
 
     os.remove(labels_path)
 

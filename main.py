@@ -4,7 +4,7 @@ def main():
     # Load a pretrained YOLO26n model
     model = YOLO("runs/detect/WIDER_train/weights/best.pt")
 
-    # Train the model on the COCO8 dataset for 100 epochs
+    # Train the model
     train_results = model.train(
         data="coco-text.yaml",  # Path to dataset configuration file
         epochs=100,  # Number of training epochs
@@ -14,9 +14,9 @@ def main():
 
     # Resume training
     # model = YOLO("runs/detect/train/weights/last.pt")
-    train_results = model.train(
-        resume=True,
-    )
+    # train_results = model.train(
+    #     resume=True,
+    # )
 
     # Evaluate the model's performance on the validation set
     metrics = model.val()
