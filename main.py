@@ -2,21 +2,21 @@ from ultralytics import YOLO
 
 def main():
     # Load a pretrained YOLO26n model
-    model = YOLO("runs/detect/WIDER_train/weights/best.pt")
+    # model = YOLO("runs/detect/WIDER_train/weights/best.pt")
 
-    # Train the model
-    train_results = model.train(
-        data="coco-text.yaml",  # Path to dataset configuration file
-        epochs=100,  # Number of training epochs
-        imgsz=640,  # Image size for training
-        device=0,  # Device to run on (e.g., 'cpu', 0, [0,1,2,3])
-    )
+    # # Train the model
+    # train_results = model.train(
+    #     data="coco-text.yaml",  # Path to dataset configuration file
+    #     epochs=100,  # Number of training epochs
+    #     imgsz=640,  # Image size for training
+    #     device=0,  # Device to run on (e.g., 'cpu', 0, [0,1,2,3])
+    # )
 
     # Resume training
-    # model = YOLO("runs/detect/train/weights/last.pt")
-    # train_results = model.train(
-    #     resume=True,
-    # )
+    model = YOLO("runs/detect/train/weights/last.pt")
+    train_results = model.train(
+        resume=True,
+    )
 
     # Evaluate the model's performance on the validation set
     metrics = model.val()

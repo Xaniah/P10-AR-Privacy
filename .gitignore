@@ -1,6 +1,7 @@
 datasets
 runs
 *.pt
+videos
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
