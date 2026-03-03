@@ -6,6 +6,6 @@ torchvision
 pylabel==0.1.55
 kagglehub==1.0.0
 fiftyone==1.13.2
-tqdm=4.67.3
+tqdm==4.67.3
 supervision==0.27.0.post1
 numpy==2.4.2
