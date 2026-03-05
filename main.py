@@ -6,10 +6,10 @@ def main():
 
     # Train the model
     train_results = model.train(
-        data="OpenImagesV7.yaml",  # Path to dataset configuration file
+        data="dataset-config.yaml",  # Path to dataset configuration file
         epochs=100,  # Number of training epochs
         imgsz=640,  # Image size for training
-        device='cpu',  # Device to run on (e.g., 'cpu', 0, [0,1,2,3])
+        device='mps',  # Device to run on (e.g., 'cpu', 0, [0,1,2,3])
     )
 
     # Resume training
