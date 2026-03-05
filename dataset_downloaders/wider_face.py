@@ -7,25 +7,25 @@ import requests
 import zipfile
 import shutil
 
-dir = Path(os.path.dirname(os.path.realpath(__file__)))  # dataset root dir
+def download_wider_face():
+    dir = Path(os.path.dirname(os.path.realpath(__file__)))  # dataset root dir
 
-# Paths
-train_images = "https://huggingface.co/datasets/CUHK-CSE/wider_face/resolve/main/data/WIDER_train.zip"
-val_images = "https://huggingface.co/datasets/CUHK-CSE/wider_face/resolve/main/data/WIDER_val.zip"
+    # Paths
+    train_images = "https://huggingface.co/datasets/CUHK-CSE/wider_face/resolve/main/data/WIDER_train.zip"
+    val_images = "https://huggingface.co/datasets/CUHK-CSE/wider_face/resolve/main/data/WIDER_val.zip"
 
-images_base_dir = [train_images, val_images]
-target_dir = dir.parent / "datasets/WIDER-FACE"
+    images_base_dir = [train_images, val_images]
+    target_dir = dir.parent / "datasets/WIDER-FACE"
 
-source_labels = "https://shuoyang1213.me/WIDERFACE/support/bbx_annotation/wider_face_split.zip"
-labels_file_name_zip = f"{target_dir}/wider_face_split.zip"
-labels_folder_name = os.path.splitext(labels_file_name_zip)[0]
+    source_labels = "https://shuoyang1213.me/WIDERFACE/support/bbx_annotation/wider_face_split.zip"
+    labels_file_name_zip = f"{target_dir}/wider_face_split.zip"
+    labels_folder_name = os.path.splitext(labels_file_name_zip)[0]
 
-annotations_to_img_path = {
-    "wider_face_train_bbx_gt.txt": f"{target_dir}/WIDER_train",
-    "wider_face_val_bbx_gt.txt": f"{target_dir}/WIDER_val",
-}
+    annotations_to_img_path = {
+        "wider_face_train_bbx_gt.txt": f"{target_dir}/WIDER_train",
+        "wider_face_val_bbx_gt.txt": f"{target_dir}/WIDER_val",
+    }
 
-def main():
     images_download_dir = []
     for base_dir in images_base_dir:
         file_name = base_dir.split("/")[-1]
@@ -96,7 +96,7 @@ def main():
 
 
             # Convert to YOLO format
-            yolo_lines = [f"0 {(x + w / 2.0) / img_width} {(y + h / 2.0) / img_height} {w / img_width} {h / img_height}" 
+            yolo_lines = [f"4 {(x + w / 2.0) / img_width} {(y + h / 2.0) / img_height} {w / img_width} {h / img_height}" 
                         for x, y, w, h in bboxes]
 
             # Write to label file
@@ -111,4 +111,4 @@ def main():
         shutil.rmtree(labels_folder_name)
 
 if __name__ == "__main__":
-    main()
+    download_wider_face()
