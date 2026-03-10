@@ -1,60 +1,78 @@
 import cv2
-import numpy as np
-import supervision as sv
+import time
 from ultralytics import YOLO
 
-model = YOLO("yolo26s.pt")
-tracker = sv.ByteTrack()
-color_annotator = sv.ColorAnnotator(opacity=1, color=sv.Color.BLACK)
+VIDEO_PATH = "videos/20260212_124301_f04acdba.mp4"
+OUTPUT_PATH = "videos/results.mp4"
+ALLOWED = {"person", "face", "Machine printed", "Handwritten", "Other text", "license plate", "Traffic sign"}
 
-# Choose classes here (by name and/or id). Example: {"person", "car"} or {0, 2}
-# Set to None or empty set to draw all classes.
-SELECTED_CLASSES = {"person", "face", "Machine printed", "Handwritten", "Other text", "license plate", "Traffic sign"}
+model = YOLO("best_WIDER.pt")
+cap = cv2.VideoCapture(0)
 
-def _resolve_selected_class_ids(selected_classes, names):
-    if not selected_classes:
-        return None
+# Get video properties
+width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+fps    = cap.get(cv2.CAP_PROP_FPS)
 
-    # names can be dict{id: name} or list[name]
-    if isinstance(names, dict):
-        name_to_id = {name: cid for cid, name in names.items()}
+fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+out = cv2.VideoWriter(OUTPUT_PATH, fourcc, fps, (width, height))
+
+prev_time = time.time()
+
+# Loop through the video frames
+while cap.isOpened():
+    # Read a frame from the video
+    success, cap_frame = cap.read()
+
+    if success:
+        # Run YOLO26 tracking on the frame, persisting tracks between frames
+        results = model.track(cap_frame, persist=True)
+        r = results[0]
+
+        frame = r.orig_img
+        boxes = r.boxes
+
+        if boxes is not None:
+            for box in boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                cls = int(box.cls[0])
+                if model.names[cls] not in ALLOWED:
+                    continue
+
+                track_id = int(box.id[0]) if box.id is not None else -1
+
+                label = f"{model.names[cls]} ID:{track_id}"
+
+                cv2.rectangle(frame, (x1,y1), (x2,y2), (0,0,0), -1)
+                cv2.putText(frame, label, (x1,y1-10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
+
+        # ---- FPS calculation ----
+        current_time = time.time()
+        fps = 1 / (current_time - prev_time)
+        prev_time = current_time
+
+        cv2.putText(
+            frame,
+            f"FPS: {fps:.2f}",
+            (20, 40),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 255, 0),
+            2
+        )
+
+        out.write(frame)
+
+        cv2.imshow("YOLO Tracking", frame)
+
+        # Break the loop if 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
     else:
-        name_to_id = {name: i for i, name in enumerate(names)}
+        # Break the loop if the end of the video is reached
+        break
 
-    class_ids = []
-    for c in selected_classes:
-        if isinstance(c, int):
-            class_ids.append(c)
-        elif isinstance(c, str) and c in name_to_id:
-            class_ids.append(name_to_id[c])
-        else:
-            print(f"Warning: class '{c}' not found in model names, skipping.")
-
-    return np.array(sorted(set(class_ids)), dtype=np.int32) if class_ids else None
-
-SELECTED_CLASS_IDS = _resolve_selected_class_ids(SELECTED_CLASSES, model.names)
-
-def callback(frame: np.ndarray, _: int) -> np.ndarray:
-    results = model(frame)[0]
-    detections = sv.Detections.from_ultralytics(results)
-
-    if len(detections.xyxy) == 0:
-        return frame
-
-    # Filter detections by selected classes
-    if SELECTED_CLASS_IDS is not None and detections.class_id is not None:
-        mask = np.isin(detections.class_id.astype(np.int32), SELECTED_CLASS_IDS)
-        detections = detections[mask]
-
-    annotated_frame = color_annotator.annotate(
-        scene=frame.copy(),
-        detections=detections
-    )
-
-    return annotated_frame
-
-sv.process_video(
-    source_path="videos/20260212_124518_bcd950d6.mp4",
-    target_path="videos/result_20260212_124518_bcd950d6.mp4",
-    callback=callback
-)
+cap.release()
+out.release()
+cv2.destroyAllWindows()
