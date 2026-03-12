@@ -7,7 +7,7 @@ OUTPUT_PATH = "videos/results.mp4"
 ALLOWED = {"person", "face", "Machine printed", "Handwritten", "Other text", "license plate", "Traffic sign"}
 
 model = YOLO("best_WIDER.pt")
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(VIDEO_PATH)
 
 # Get video properties
 width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))

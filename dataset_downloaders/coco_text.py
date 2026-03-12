@@ -13,12 +13,6 @@ def download_coco_text():
     labels = "https://github.com/bgshih/cocotext/releases/download/dl/cocotext.v2.zip"
     labels_path = target_dir / "cocotext.v2.json"
 
-    class_mappings = {
-        "machine printed": "1",
-        "handwritten": "2",
-        "others": "3",
-    }
-
     if os.path.exists(target_dir / "labels"):
         shutil.rmtree(target_dir / "labels")
 
@@ -64,7 +58,7 @@ def download_coco_text():
             image_width = image["width"]
             image_height = image["height"]
 
-            strs_to_write[image_id].append(f"{class_mappings[annotation["class"]]} {(x + w / 2.0) / image_width} {(y + h / 2.0) / image_height} {w / image_width} {h / image_height}")
+            strs_to_write[image_id].append(f"1 {(x + w / 2.0) / image_width} {(y + h / 2.0) / image_height} {w / image_width} {h / image_height}")
 
 
         for image_id, str_to_write in tqdm(strs_to_write.items()):

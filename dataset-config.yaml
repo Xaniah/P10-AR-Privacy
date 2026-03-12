@@ -12,10 +12,8 @@ val: subset/images/val
 # Classes
 names:
   0: Traffic sign
-  1: Machine printed
-  2: Handwritten
-  3: Other text
-  4: Face
+  1: text
+  2: Face
 
 # Download script/URL (optional) ---------------------------------------------------------------------------------------
 download: |

@@ -96,7 +96,7 @@ def download_wider_face():
 
 
             # Convert to YOLO format
-            yolo_lines = [f"4 {(x + w / 2.0) / img_width} {(y + h / 2.0) / img_height} {w / img_width} {h / img_height}" 
+            yolo_lines = [f"2 {(x + w / 2.0) / img_width} {(y + h / 2.0) / img_height} {w / img_width} {h / img_height}" 
                         for x, y, w, h in bboxes]
 
             # Write to label file
