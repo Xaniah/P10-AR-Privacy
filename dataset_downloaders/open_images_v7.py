@@ -38,7 +38,7 @@ def download_open_images_v7():
                 label_field="ground_truth",
                 split="val" if split == "validation" else split,
                 classes=classes,
-                overwrite=train,
+                overwrite=False,
             )
 
 if __name__ == "__main__":

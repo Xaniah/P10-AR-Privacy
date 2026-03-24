@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil
 from ultralytics.utils import SETTINGS
 import random
+from tqdm import tqdm
 
 def split_dataset(train_images_dir, train_labels_dir, val_images_dir, val_labels_dir, subset_dir, max_samples=5000, train_split=0.9, val_split=0.1):
     train_image_files = list(train_images_dir.glob("*.jpg")) + list(train_images_dir.glob("*.png")) + list(train_images_dir.glob("*.webp"))
@@ -17,7 +18,7 @@ def split_dataset(train_images_dir, train_labels_dir, val_images_dir, val_labels
         os.makedirs(split_images_dir, exist_ok=True)
         os.makedirs(split_labels_dir, exist_ok=True)
 
-        for img_file in files:
+        for img_file in tqdm(files):
             shutil.copy(img_file, split_images_dir)
             label_file = labels_dir / (img_file.stem + ".txt")
             if label_file.exists():
