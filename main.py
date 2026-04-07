@@ -7,8 +7,8 @@ def main():
     # Train the model
     train_results = model.train(
         data="dataset-config.yaml",  # Path to dataset configuration file
-        epochs=300,  # Number of training epochs
-        imgsz=1280,  # Image size for training
+        epochs=600,  # Number of training epochs
+        imgsz=640,  # Image size for training
         device=0,  # Device to run on (e.g., 'cpu', 0, [0,1,2,3])
         batch=-1,
     )

@@ -36,7 +36,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-ALLOWED = {"person", "Face", "face", "Machine printed", "Handwritten", "Other text", "license plate", "Traffic sign"}
+ALLOWED = {"Face", "License plate", "Traffic sign"}
 
 def black_box(frame, x1, y1, x2, y2):
     cv2.rectangle(frame, (x1, y1), (x2, y2), (0,0,0), -1)
@@ -139,7 +139,7 @@ while cap.isOpened():
 
     if success:
         # Run YOLO26 tracking on the frame, persisting tracks between frames
-        results = model.track(cap_frame, persist=True)
+        results = model.track(cap_frame, persist=True, imgsz=1280)
         r = results[0]
 
         frame = r.orig_img

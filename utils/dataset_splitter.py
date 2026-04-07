@@ -60,16 +60,16 @@ def split_datasets():
         val_split=VAL_SPLIT,
     )
 
-    split_dataset(
-        train_images_dir=COCO_TEXT_DIR / "images" / "train2014",
-        train_labels_dir=COCO_TEXT_DIR / "labels" / "train2014",
-        val_images_dir=COCO_TEXT_DIR / "images" / "val2014",
-        val_labels_dir=COCO_TEXT_DIR / "labels" / "val2014",
-        subset_dir=SUBSET_DIR,
-        max_samples=MAX_SAMPLES,
-        train_split=TRAIN_SPLIT,
-        val_split=VAL_SPLIT,
-    )
+    # split_dataset(
+    #     train_images_dir=COCO_TEXT_DIR / "images" / "train2014",
+    #     train_labels_dir=COCO_TEXT_DIR / "labels" / "train2014",
+    #     val_images_dir=COCO_TEXT_DIR / "images" / "val2014",
+    #     val_labels_dir=COCO_TEXT_DIR / "labels" / "val2014",
+    #     subset_dir=SUBSET_DIR,
+    #     max_samples=MAX_SAMPLES,
+    #     train_split=TRAIN_SPLIT,
+    #     val_split=VAL_SPLIT,
+    # )
 
     split_dataset(
         train_images_dir=OPEN_IMAGES_DIR / "images" / "train",

@@ -9,6 +9,7 @@ import fiftyone as fo
 import fiftyone.zoo as foz
 
 def download_open_images_v7():
+    classes = ["Traffic sign", "Vehicle registration plate"]
     name = "open-images-v7"
     fo.config.dataset_zoo_dir = Path(SETTINGS["datasets_dir"]) / "fiftyone" / name
     fraction = 1.0  # fraction of full dataset to use
@@ -19,15 +20,10 @@ def download_open_images_v7():
         dataset = foz.load_zoo_dataset(
             name,
             split=split,
-            classes=["Traffic sign"],
+            classes=classes,
             label_types=["detections"],
             max_samples=round((1743042 if train else 41620) * fraction),
         )
-
-        # Define classes
-        if train:
-            classes = ["Traffic sign"]
-            # classes = dataset.distinct('ground_truth.detections.label')  # only observed classes
 
         # Export to YOLO format
         with warnings.catch_warnings():
