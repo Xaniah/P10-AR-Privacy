@@ -7,6 +7,7 @@ check_requirements("fiftyone")
 
 import fiftyone as fo
 import fiftyone.zoo as foz
+from fiftyone import ViewField as F
 
 def download_open_images_v7():
     classes = ["Traffic sign", "Vehicle registration plate", "Human face"]
@@ -25,10 +26,21 @@ def download_open_images_v7():
             max_samples=round((1743042 if train else 41620) * fraction),
         )
 
+        # Keep images that contain plate OR traffic sign
+        view = dataset.match(
+            (F("ground_truth.detections.label").contains("Vehicle registration plate")) |
+            (F("ground_truth.detections.label").contains("Traffic sign"))
+        )
+
+        view = view.filter_labels(
+            "ground_truth",
+            F("label").is_in(classes)
+        )
+
         # Export to YOLO format
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning, module="fiftyone.utils.yolo")
-            dataset.export(
+            view.export(
                 export_dir=str(Path(SETTINGS["datasets_dir"]) / name),
                 dataset_type=fo.types.YOLOv5Dataset,
                 label_field="ground_truth",
