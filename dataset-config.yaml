@@ -18,12 +18,7 @@ names:
 # Download script/URL (optional) ---------------------------------------------------------------------------------------
 download: |
   from dataset_downloaders import (
-    download_coco_text, download_open_images_v7, 
-    download_wider_face,
+    download_all_datasets
   )
-  from utils import split_datasets
 
-  download_wider_face()
-  # download_coco_text()
-  download_open_images_v7()
-  split_datasets()
+  download_all_datasets()

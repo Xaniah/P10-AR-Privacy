@@ -2,7 +2,7 @@ from ultralytics import YOLO
 
 def main():
     # Load a pretrained YOLO26n model
-    model = YOLO("runs/detect/train/weights/last.pt")
+    model = YOLO("yolo26s.pt")
 
     # Train the model
     train_results = model.train(

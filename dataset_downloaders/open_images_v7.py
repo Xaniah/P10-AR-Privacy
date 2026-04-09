@@ -9,7 +9,7 @@ import fiftyone as fo
 import fiftyone.zoo as foz
 
 def download_open_images_v7():
-    classes = ["Traffic sign", "Vehicle registration plate"]
+    classes = ["Traffic sign", "Vehicle registration plate", "Human face"]
     name = "open-images-v7"
     fo.config.dataset_zoo_dir = Path(SETTINGS["datasets_dir"]) / "fiftyone" / name
     fraction = 1.0  # fraction of full dataset to use
