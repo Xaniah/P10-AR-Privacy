@@ -10,6 +10,7 @@ from ultralytics import SETTINGS, YOLO
 parser = argparse.ArgumentParser(description="Pseudo-label Open Images v7 dataset using YOLO model")
 parser.add_argument("-m", "--model", type=str, help="Path to YOLO model")
 parser.add_argument("-mc", "--model-confidence", type=float, default=0.5, help="Confidence threshold for YOLO predictions (default: 0.5)")
+parser.add_argument("-mi", "--model-image-size", type=int, default=1280, help="Image size for YOLO predictions (default: 1280)")
 parser.add_argument("-i", "--id", type=int, help="Class ID for the pseudo-labels (check the dataset-config.yaml for the mapping between IDs and names)")
 parser.add_argument(
   "-c",
@@ -17,7 +18,7 @@ parser.add_argument(
   choices=["label", "merge", "full"],
   help=(
     "Config to use. Options:\n"
-    "  label     : Pseudo-label images, save detections in 'datasets_dir / pseudo_labels' folder\n"
+    "  label     : Pseudo-label images, save detections in 'datasets_dir / pseudo_labels' folder. If the folder already exists, it will be removed.\n"
     "  merge     : Merge pseudo-labelled images with dataset (Removes the pseudo-labels folder)\n"
     "  full      : Perform both steps (label + merge)\n\n"
     "Notes:\n"
@@ -36,18 +37,31 @@ def label():
     print(dataset_doesnt_exist_msg)
     return
 
+  pseudo_labels_dir = dataset_dir / "pseudo_labels"
+
+  if os.path.exists(pseudo_labels_dir):
+    shutil.rmtree(pseudo_labels_dir)
+
   model = YOLO(args.model)
 
+  detections = 0
+
   for split in "train", "val":
-    model.predict(
+    results = model.predict(
       source=str(dataset_dir / "images" / split),
       save=True,
       save_txt=True,
       save_conf=True,
       conf=args.model_confidence,
-      project=str(dataset_dir / "pseudo_labels" / split),
-      exist_ok=True,
+      project=str(pseudo_labels_dir / split),
+      imgsz=args.model_image_size
     )
+    
+    for r in results:
+      detections += len(r.boxes)
+
+  print(f"Total detections: {detections}")
+
 
 def merge():
   if not os.path.exists(dataset_dir):
@@ -73,7 +87,7 @@ def merge():
         with open(dst_img, "a") as dst_file:
           dst_file.write("\n" + remapped_content)
         src_img_file.close()
-        
+
   shutil.rmtree(pseudo_labels_dir) # Cleanup pseudo-labels after merging
 
 def full():
