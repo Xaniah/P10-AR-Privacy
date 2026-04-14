@@ -48,7 +48,9 @@ def split_datasets():
         shutil.rmtree(SUBSET_DIR)
 
     os.mkdir(SUBSET_DIR)
-    
+
+    print("Splitting datasets...")    
+
     split_dataset(
         train_images_dir=WIDER_FACE_DIR / "WIDER_train" / "images",
         train_labels_dir=WIDER_FACE_DIR / "WIDER_train" / "labels",
