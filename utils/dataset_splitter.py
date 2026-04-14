@@ -39,8 +39,8 @@ def split_datasets():
 
     if not os.path.exists(WIDER_FACE_DIR):
         raise FileNotFoundError(f"WIDER FACE dataset directory '{WIDER_FACE_DIR}' does not exist.")
-    if not os.path.exists(COCO_TEXT_DIR):
-        raise FileNotFoundError(f"COCO TEXT dataset directory '{COCO_TEXT_DIR}' does not exist.")
+    # if not os.path.exists(COCO_TEXT_DIR):
+    #     raise FileNotFoundError(f"COCO TEXT dataset directory '{COCO_TEXT_DIR}' does not exist.")
     if not os.path.exists(OPEN_IMAGES_DIR):
         raise FileNotFoundError(f"OPEN IMAGES dataset directory '{OPEN_IMAGES_DIR}' does not exist.")
 
