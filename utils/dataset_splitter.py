@@ -26,7 +26,7 @@ def split_dataset(train_images_dir, train_labels_dir, val_images_dir, val_labels
 
 
 def split_datasets():
-    MAX_SAMPLES = 5000
+    MAX_SAMPLES = 15000000
     TRAIN_SPLIT = 0.9
     VAL_SPLIT = 1 - TRAIN_SPLIT
 
