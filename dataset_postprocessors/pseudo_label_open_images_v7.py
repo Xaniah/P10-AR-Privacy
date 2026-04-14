@@ -51,7 +51,6 @@ def label():
       source=str(dataset_dir / "images" / split),
       save=True,
       save_txt=True,
-      save_conf=True,
       conf=args.model_confidence,
       project=str(pseudo_labels_dir / split),
       imgsz=args.model_image_size
