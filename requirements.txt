@@ -12,3 +12,5 @@ opencv-python==4.13.0.92
 diffusers
 accelerate
 transformers
+roboflow==1.3.1
+python-dotenv==1.2.2
