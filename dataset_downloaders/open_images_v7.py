@@ -11,7 +11,7 @@ import fiftyone.zoo as foz
 def download_open_images_v7():
     # NOTE: It is very important that the order of the classes is the same as in the dataset-config.yaml file, 
     # otherwise the labels will be messed up. The mapping between class names and IDs can be found in the dataset-config.yaml file.
-    classes = ["Traffic sign", "Vehicle registration plate"] 
+    classes = ["Traffic sign", "Vehicle registration plate", "Human face"] 
     name = "open-images-v7"
     fo.config.dataset_zoo_dir = Path(SETTINGS["datasets_dir"]) / "fiftyone" / name
     fraction = 1.0  # fraction of full dataset to use
