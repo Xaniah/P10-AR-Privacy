@@ -1,4 +1,3 @@
-# WIP
 # Source: https://www.kaggle.com/datasets/icebearogo/german-traffic-sign-detection-gtsdb-dataset/data
 # Used for traffic signs
 

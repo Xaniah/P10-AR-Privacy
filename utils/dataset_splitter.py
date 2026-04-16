@@ -18,6 +18,7 @@ def split_dataset(train_images_dir, train_labels_dir, val_images_dir, val_labels
         os.makedirs(split_images_dir, exist_ok=True)
         os.makedirs(split_labels_dir, exist_ok=True)
 
+        print(f"Copying {len(files)} {split} images and labels from {labels_dir} to {split_labels_dir}...")
         for img_file in tqdm(files):
             shutil.copy(img_file, split_images_dir)
             label_file = labels_dir / (img_file.stem + ".txt")
