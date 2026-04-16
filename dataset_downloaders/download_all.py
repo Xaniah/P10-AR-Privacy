@@ -5,6 +5,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dataset_downloaders.license_plate_roboflow import download_license_plate_roboflow
+from dataset_downloaders.license_plate_UC3M_LP import download_license_plate_uc3m_lp
 from dataset_downloaders.wider_face import download_wider_face
 #from dataset_downloaders.coco_text import download_coco_text
 from dataset_downloaders.open_images_v7 import download_open_images_v7
@@ -19,6 +20,7 @@ def download_all_datasets(split_datasets_after_download=True):
   # download_coco_text()
   download_open_images_v7()
   download_license_plate_roboflow()
+  download_license_plate_uc3m_lp()
 
   if split_datasets_after_download:
     split_datasets()

@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from ultralytics import SETTINGS
 
 from dataset_postprocessors import remap_class_ids
+from utils import get_dataset_class_id_by_name
 
 def download_license_plate_roboflow():
   load_dotenv()
@@ -31,7 +32,7 @@ def download_license_plate_roboflow():
       os.remove(data_yaml)
 
     for split in "test", "train", "valid":
-      remap_class_ids(dataset_path / split / "labels", {0: 1})
+      remap_class_ids(dataset_path / split / "labels", {0: get_dataset_class_id_by_name("License plate")})
   else:
     print(f"Roboflow license plate Dataset already exists at {dataset_path}, skipping download.")
 

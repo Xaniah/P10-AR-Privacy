@@ -36,6 +36,7 @@ def split_datasets():
     COCO_TEXT_DIR = DATASETS_DIR / "coco-text"
     OPEN_IMAGES_DIR = DATASETS_DIR / "open-images-v7"
     ROBOFLOW_LICENSE_PLATE_DIR = DATASETS_DIR / "License-Plate-Recognition-13"
+    UC3M_LP_DIR = DATASETS_DIR / "UC3M-LP"
     SUBSET_DIR = DATASETS_DIR / "subset"
 
     if not os.path.exists(WIDER_FACE_DIR):
@@ -46,6 +47,9 @@ def split_datasets():
         raise FileNotFoundError(f"OPEN IMAGES dataset directory '{OPEN_IMAGES_DIR}' does not exist.")
     if not os.path.exists(ROBOFLOW_LICENSE_PLATE_DIR):
         raise FileNotFoundError(f"ROBOFLOW LICENSE PLATE dataset directory '{ROBOFLOW_LICENSE_PLATE_DIR}' does not exist.")
+    if not os.path.exists(UC3M_LP_DIR):
+        raise FileNotFoundError(f"UC3M LP dataset directory '{UC3M_LP_DIR}' does not exist.")
+
 
     if os.path.exists(SUBSET_DIR):
         shutil.rmtree(SUBSET_DIR)
@@ -92,6 +96,17 @@ def split_datasets():
         train_labels_dir=ROBOFLOW_LICENSE_PLATE_DIR / "train" / "labels",
         val_images_dir=ROBOFLOW_LICENSE_PLATE_DIR / "valid" / "images",
         val_labels_dir=ROBOFLOW_LICENSE_PLATE_DIR / "valid" / "labels",
+        subset_dir=SUBSET_DIR,
+        max_samples=MAX_SAMPLES,
+        train_split=TRAIN_SPLIT,
+        val_split=VAL_SPLIT,
+    )
+
+    split_dataset(
+        train_images_dir=UC3M_LP_DIR / "images" / "train",
+        train_labels_dir=UC3M_LP_DIR / "labels" / "train",
+        val_images_dir=UC3M_LP_DIR / "images" / "val",
+        val_labels_dir=UC3M_LP_DIR / "labels" / "val",
         subset_dir=SUBSET_DIR,
         max_samples=MAX_SAMPLES,
         train_split=TRAIN_SPLIT,

@@ -7,6 +7,8 @@ import requests
 import zipfile
 import shutil
 
+from utils import get_dataset_class_id_by_name
+
 def download_wider_face():
     dir = Path(os.path.dirname(os.path.realpath(__file__)))  # dataset root dir
 
@@ -96,7 +98,7 @@ def download_wider_face():
 
 
             # Convert to YOLO format
-            yolo_lines = [f"2 {(x + w / 2.0) / img_width} {(y + h / 2.0) / img_height} {w / img_width} {h / img_height}" 
+            yolo_lines = [f"{get_dataset_class_id_by_name('Face')} {(x + w / 2.0) / img_width} {(y + h / 2.0) / img_height} {w / img_width} {h / img_height}" 
                         for x, y, w, h in bboxes]
 
             # Write to label file
