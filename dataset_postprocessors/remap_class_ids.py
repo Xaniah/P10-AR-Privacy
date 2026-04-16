@@ -5,34 +5,46 @@ import re
 
 from tqdm import tqdm
 
-def _process_file(label_file: Path, class_id_mapping: dict[int, int]) -> None:
+def _process_file(label_file: Path, class_id_mapping: dict[int, int] | int) -> None:
   pattern = re.compile(r'^\d+', re.MULTILINE)
 
   def replace(match):
-      old_id = int(match.group())
-      if old_id in class_id_mapping:
-          return str(class_id_mapping[old_id])
-      print(f"Warning: Class ID {old_id} in file {label_file} not found in mapping, keeping original.")
-      return match.group()
+    old_id = int(match.group())
+    if isinstance(class_id_mapping, int):
+      return str(class_id_mapping)
+    if old_id in class_id_mapping:
+        return str(class_id_mapping[old_id])
+    print(f"Warning: Class ID {old_id} in file {label_file} not found in mapping, keeping original.")
+    return match.group()
 
   content = label_file.read_text()
   new_content = pattern.sub(replace, content)
   if content != new_content:
-      label_file.write_text(new_content)
+    label_file.write_text(new_content)
 
 
-def remap_class_ids(dataset_dir_labels: Path, class_id_mapping: dict[int, int]) -> None:
+def remap_class_ids(dataset_dir_labels: Path, class_id_mapping: dict[int, int] | int) -> None:
   """
-  Remaps class IDs in YOLO format annotation files based on the provided mapping.
+  Remaps class IDs in YOLO format annotation files.
+
   Args:
       dataset_dir_labels: Path to the directory containing the YOLO annotation files
-      class_id_mapping: A dictionary mapping old class IDs to new class IDs
+    class_id_mapping: Either:
+      - A dictionary mapping old class IDs to new class IDs
+      - A single class ID (int) that replaces every class ID found
   """
-  print("Remapping class IDs in annotation files...")
+  if not isinstance(class_id_mapping, (dict, int)):
+    raise TypeError("class_id_mapping must be either dict[int, int] or int")
+
+  if isinstance(class_id_mapping, int):
+    print(f"Replacing all class IDs with {class_id_mapping}...")
+  else:
+    print("Remapping class IDs in annotation files...")
+
   label_files = list(dataset_dir_labels.glob("*.txt"))
 
   process_file = partial(_process_file, class_id_mapping=class_id_mapping)
   with Pool() as pool:
-      list(tqdm(pool.imap(process_file, label_files), total=len(label_files)))
+    list(tqdm(pool.imap(process_file, label_files), total=len(label_files)))
 
   print("Class ID remapping completed.")

@@ -37,6 +37,7 @@ def split_datasets():
     OPEN_IMAGES_DIR = DATASETS_DIR / "open-images-v7"
     ROBOFLOW_LICENSE_PLATE_DIR = DATASETS_DIR / "License-Plate-Recognition-13"
     UC3M_LP_DIR = DATASETS_DIR / "UC3M-LP"
+    GTSDB_DIR = DATASETS_DIR / "GTSDB"
     SUBSET_DIR = DATASETS_DIR / "subset"
 
     if not os.path.exists(WIDER_FACE_DIR):
@@ -49,6 +50,8 @@ def split_datasets():
         raise FileNotFoundError(f"ROBOFLOW LICENSE PLATE dataset directory '{ROBOFLOW_LICENSE_PLATE_DIR}' does not exist.")
     if not os.path.exists(UC3M_LP_DIR):
         raise FileNotFoundError(f"UC3M LP dataset directory '{UC3M_LP_DIR}' does not exist.")
+    if not os.path.exists(GTSDB_DIR):
+        raise FileNotFoundError(f"GTSDB dataset directory '{GTSDB_DIR}' does not exist.")
 
 
     if os.path.exists(SUBSET_DIR):
@@ -107,6 +110,17 @@ def split_datasets():
         train_labels_dir=UC3M_LP_DIR / "labels" / "train",
         val_images_dir=UC3M_LP_DIR / "images" / "val",
         val_labels_dir=UC3M_LP_DIR / "labels" / "val",
+        subset_dir=SUBSET_DIR,
+        max_samples=MAX_SAMPLES,
+        train_split=TRAIN_SPLIT,
+        val_split=VAL_SPLIT,
+    )
+
+    split_dataset(
+        train_images_dir=GTSDB_DIR / "GTSDB_Train_and_Test" / "Train" / "images",
+        train_labels_dir=GTSDB_DIR / "GTSDB_Train_and_Test" / "Train" / "labels",
+        val_images_dir=GTSDB_DIR / "GTSDB_Train_and_Test" / "Test" / "images",
+        val_labels_dir=GTSDB_DIR / "GTSDB_Train_and_Test" / "Test" / "labels",
         subset_dir=SUBSET_DIR,
         max_samples=MAX_SAMPLES,
         train_split=TRAIN_SPLIT,
