@@ -36,24 +36,39 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-ALLOWED = {"Face", "License plate", "Traffic sign"}
+ALLOWED = {
+    "Face": {
+        "prompt": "Replace the face of the person with a different realistic human face, "
+            "keeping the same pose, lighting, camera angle, hairstyle, and background. "
+            "Maintain natural skin texture and consistent shadows. The new face should blend "
+            "seamlessly with the body and environment, photorealistic, high detail, no artifacts.", 
+        "bbx_scale": 2.2
+    },
 
-def black_box(frame, x1, y1, x2, y2):
+    "License plate": {
+        "prompt": "Replace the license plate with a different one, maintaining the same font, color, and style. "
+            "Replace the text with random characters i.e. 'ER 21 531' can become 'AB 34 789', 'CD 56 123', etc. "
+            "Ensure the new plate is clearly visible and matches the vehicle's make and model.",
+        "bbx_scale": 1.5
+    },
+
+    "Traffic sign": {
+        "prompt": "Replace the traffic sign with a different privatized one, maintaining the same shape and color. Scramble the text."
+            "Ensure the new sign is clearly visible and matches the location and context.",
+        "bbx_scale": 1.5
+    }
+}
+
+def black_box(frame, _, x1, y1, x2, y2):
     cv2.rectangle(frame, (x1, y1), (x2, y2), (0,0,0), -1)
 
-def blur(frame, x1, y1, x2, y2):
+def blur(frame, _, x1, y1, x2, y2):
     roi = frame[y1:y2, x1:x2]
     roi = cv2.GaussianBlur(roi, (25,25), 30)
     frame[y1:y2, x1:x2] = roi
 
 
 pipe = None
-MORPH_PROMPT = (
-    "Replace the face of the person with a different realistic human face, "
-    "keeping the same pose, lighting, camera angle, hairstyle, and background. "
-    "Maintain natural skin texture and consistent shadows. The new face should blend "
-    "seamlessly with the body and environment, photorealistic, high detail, no artifacts."
-)
 
 def expand_box(x1, y1, x2, y2, frame_shape, scale=1.5):
     """
@@ -75,8 +90,9 @@ def expand_box(x1, y1, x2, y2, frame_shape, scale=1.5):
 
     return new_x1, new_y1, new_x2, new_y2
 
-def morph(frame, x1, y1, x2, y2):
+def morph(frame, cls, x1, y1, x2, y2):
     global pipe
+    class_config = ALLOWED[model.names[cls]]
 
     if pipe is None:
         print("Loading FLUX.2-klein-4B model…")
@@ -87,7 +103,7 @@ def morph(frame, x1, y1, x2, y2):
         )
         pipe.enable_model_cpu_offload()
 
-    x1_exp, y1_exp, x2_exp, y2_exp = expand_box(x1, y1, x2, y2, frame.shape, scale=2.2)
+    x1_exp, y1_exp, x2_exp, y2_exp = expand_box(x1, y1, x2, y2, frame.shape, scale=class_config["bbx_scale"])
 
     crop = frame[y1_exp:y2_exp, x1_exp:x2_exp]
 
@@ -101,7 +117,7 @@ def morph(frame, x1, y1, x2, y2):
 
     pil_crop = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
 
-    output_image = pipe(image=pil_crop, prompt=MORPH_PROMPT).images[0]
+    output_image = pipe(image=pil_crop, prompt=class_config["prompt"]).images[0]
 
     # Convert back and resize to original tight bounding box
     output_cv2 = cv2.cvtColor(np.array(output_image), cv2.COLOR_RGB2BGR)
@@ -156,7 +172,7 @@ while cap.isOpened():
 
                 label = f"{model.names[cls]} ID:{track_id}"
 
-                methods[args.censoring_method](frame, x1, y1, x2, y2)
+                methods[args.censoring_method](frame, cls, x1, y1, x2, y2)
                 if args.debug:
                     cv2.putText(frame, label, (x1,y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
 
