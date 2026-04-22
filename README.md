@@ -24,6 +24,25 @@ The script will scan all subdirectories, count the number of lines in each file 
 python ./dataset_downloaders/download_all.py
 ```
 
+### Pseudo-labelling
+Pseudo-labelling involves using a model to annotate a dataset. For example a dataset containing traffic signs can also contain faces. The dataset itself only has annotations for traffic signs, so we must add the face annotations using the model. Depending on the dataset's size this can be crucial for model performance as having missing annotations can penalize the model during training.
+
+```bash
+ python ./dataset_postprocessors/pseudo_label_dataset.py -m best_WIDER.pt -i 3 -ip GTSDB/GTSDB_Train_and_Test/Train/images -lp GTSDB/GTSDB_Train_and_Test/Train/labels -c full
+```
+```bash
+ python ./dataset_postprocessors/pseudo_label_dataset.py -m best_WIDER.pt -i 3 -ip GTSDB/GTSDB_Train_and_Test/Test/images -lp GTSDB/GTSDB_Train_and_Test/Test/labels -c full
+```
+
+**Parameters:**
+- `-m` — Path to the model
+- `-i` — ID to use (Must also match what is configured in the `dataset-config.yaml`, if you are going to train using this dataset)
+- `-ip` — The path to the dataset images directory
+- `-lp` — The path to the dataset labels directory
+- `-c` — The configuration to use. Options: label, merge, full (label + merge)
+
+The command pseudo-labels the GTSDB dataset, which is a dataset for traffic signs. We use a YOLO model training on WIDER face and when annotating we use ID 3. Note. In this example the `Test` split is used as the `Val` split.
+
 ## Server commands
 The ucloud GPU server is where we perform training
 
