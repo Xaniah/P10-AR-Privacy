@@ -64,7 +64,7 @@ def transform_dataset(input_directory, lp_size):
         with open(txt_file, 'r') as f:
             filenames = f.read().splitlines()
 
-        print(f'Processing {split} split')
+        print(f'[UC3M-LP]: Processing {split} split')
         for filename in tqdm(filenames):
             # Load image
             img_path = os.path.join(input_directory, split, filename + '.jpg')

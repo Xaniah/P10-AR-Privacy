@@ -15,14 +15,9 @@ python ./train.py
 ### Count annotations for every subfolder
 Used for the paper when we display number of annotations in the dataset table.
 ```bash
-total=0
-while IFS= read -r -d '' f; do
-n=$(awk 'END{print NR}' "$f")
-printf '%s %s\n' "$n" "$f"
-total=$((total + n))
-done < <(find . -type f -print0)
-printf 'TOTAL %s\n' "$total"
+./scripts/count_lines.sh path/to/dir
 ```
+The script will scan all subdirectories, count the number of lines in each file and output the total lines for all files.
 
 ### Download all datasets
 ```bash

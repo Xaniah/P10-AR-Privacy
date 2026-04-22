@@ -13,7 +13,8 @@ val: subset/images/val
 names:
   0: Traffic sign
   1: License plate
-  2: Face
+  2: Laptop
+  3: Face
 
 # Download script/URL (optional) ---------------------------------------------------------------------------------------
 download: |
