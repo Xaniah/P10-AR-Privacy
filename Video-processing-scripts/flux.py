@@ -5,14 +5,15 @@ import time
 import numpy as np
 from ultralytics import YOLO
 import torch
+from pathlib import Path
 from diffusers import DiffusionPipeline
 from PIL import Image
 
 parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
-parser.add_argument("-m", "--model", type=str, default="best_WIDER.pt", help="Path to YOLO model")
-parser.add_argument("-v", "--video", type=str, default="../videos/20260212_124301_f04acdba.mp4", help="Path to input video")
-parser.add_argument("-o", "--output", type=str, default="../videos/results-flux.mp4", help="Path to output video")
+parser.add_argument("-m", "--model", type=str, default="best.pt", help="Path to YOLO model")
+parser.add_argument("-i", "--input", type=str, default="../videos/frames", help="Path to input video")
+parser.add_argument("-o", "--output", type=str, default="../videos/flux", help="Path to output video")
 
 parser.add_argument(
     "-d",
@@ -22,8 +23,6 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-
-PATH_TO_FRAMES = "../frames/"
 
 ALLOWED = {
     "Face": {
@@ -50,8 +49,6 @@ ALLOWED = {
 
 pipe = None
 
-model = YOLO(args.model)
-
 def expand_box(x1, y1, x2, y2, frame_shape, scale=1.5):
     """
     Expand the bounding box by `scale` (1.0 = original size)
@@ -74,7 +71,7 @@ def expand_box(x1, y1, x2, y2, frame_shape, scale=1.5):
 
 def morph(frame, cls, x1, y1, x2, y2):
     global pipe
-    class_config = ALLOWED[model.names[cls]]
+    class_config = ALLOWED[cls]
 
     if pipe is None:
         print("Loading FLUX.2-klein-4B model…")
@@ -110,3 +107,59 @@ def morph(frame, cls, x1, y1, x2, y2):
         cv2.rectangle(frame, (x1_exp, y1_exp), (x2_exp, y2_exp), (0, 0, 255), 2)
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
+from pathlib import Path
+
+def get_bbox_file(img_path):
+    stem = img_path.stem
+    # remove last "-{frame_number}"
+    base = "-".join(stem.split("-")[:-1])
+    
+    return img_path.parent.parent / f"{base}-bboxes.csv"
+
+def load_bboxes(bbox_path, frame_number):
+    bboxes = []
+
+    if not bbox_path.exists():
+        return bboxes
+
+    with open(bbox_path, "r") as f:
+        for line in f:
+            parts = line.strip().split(";")
+            if len(parts) != 6:
+                continue
+
+            frame_nr, cls, x1, y1, x2, y2 = parts
+            if frame_number == frame_nr:
+                bboxes.append((cls, int(x1), int(y1), int(x2), int(y2)))
+
+    return bboxes
+
+def flux():
+    image_dir = Path(args.input)
+
+    image_paths = list(image_dir.glob("*.jpg")) + \
+                list(image_dir.glob("*.png")) + \
+                list(image_dir.glob("*.jpeg"))
+    
+    for img_path in image_paths:
+        print(f"Processing {img_path.name}")
+
+        frame = cv2.imread(str(img_path))
+        if frame is None:
+            continue
+
+        bbox_file = get_bbox_file(img_path)
+        bboxes = load_bboxes(bbox_file, (img_path.stem.split("-")[-1]).split("_")[-1])
+
+        if not bboxes:
+            print(f"No bboxes for {img_path.name}")
+            continue
+
+        for cls, x1, y1, x2, y2 in bboxes:
+            if cls in ALLOWED:
+                morph(frame, cls, x1, y1, x2, y2)
+
+        out_path = f"{args.output}-{img_path.name}"
+        cv2.imwrite(str(out_path), frame)
+
+flux()

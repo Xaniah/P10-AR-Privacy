@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
 parser.add_argument("-m", "--model", type=str, default="best.pt", help="Path to YOLO model")
 parser.add_argument("-v", "--video", type=str, default="../videos/20260212_124301_f04acdba.mp4", help="Path to input video")
-parser.add_argument("-o", "--output", type=str, default="../videos/results", help="Path to output video")
+parser.add_argument("-o", "--output", type=str, default="../videos/20260212_124301_f04acdba", help="Path to output video")
 parser.add_argument(
     "-d",
     "--debug",
@@ -88,7 +88,7 @@ def inference():
 
                         label = f"{model.names[cls]} ID:{track_id}"
 
-                        f.write(f"{frame_number};{cls};{x1};{y1};{x2};{y2}\n")
+                        f.write(f"{frame_number};{model.names[cls]};{x1};{y1};{x2};{y2}\n")
 
                         if args.debug:
                             cv2.putText(frame, label, (x1,y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)

@@ -13,8 +13,8 @@ parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
 parser.add_argument("-m", "--model", type=str, default="best.pt", help="Path to YOLO model")
 parser.add_argument("-v", "--video", type=str, default="../videos/20260212_124301_f04acdba.mp4", help="Path to input video")
-parser.add_argument("-b", "--bboxes", type=str, default="../videos/results-bboxes.csv", help="Path to input videos bounding boxes")
-parser.add_argument("-o", "--output", type=str, default="../videos/results", help="Path to output video")
+parser.add_argument("-b", "--bboxes", type=str, default="../videos/20260212_124301_f04acdba-bboxes.csv", help="Path to input videos bounding boxes")
+parser.add_argument("-o", "--output", type=str, default="../videos/20260212_124301_f04acdba", help="Path to output video")
 
 parser.add_argument(
     "-c",
@@ -91,9 +91,9 @@ def censor(censoring_method):
 
         if success:
             bboxes = read_bboxes(frame_number)
-            for _, cls, x1, y1, x2, y2 in bboxes:
-                cls, x1, y1, x2, y2 = map(int, [cls, x1, y1, x2, y2]) # Convert from str to int
-                censoring_method(cap_frame, cls, x1, y1, x2, y2)
+            for _, _, x1, y1, x2, y2 in bboxes:
+                x1, y1, x2, y2 = map(int, [x1, y1, x2, y2]) # Convert from str to int
+                censoring_method(cap_frame, _, x1, y1, x2, y2)
 
             out.write(cap_frame)
 
