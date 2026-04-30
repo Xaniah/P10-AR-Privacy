@@ -23,3 +23,4 @@ def find_image_with_no_labels(path="./datasets/GTSDB/GTSDB_Train_and_Test/Train"
     return no_labels
 
 no_labels = find_image_with_no_labels()
+print(no_labels)
