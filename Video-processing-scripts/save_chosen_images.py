@@ -20,7 +20,6 @@ def save_images():
     exclude = set(args.exclude) if args.exclude else set()
 
     frames = [x for x in range(args.frames[0], args.frames[1] + 1) if x not in exclude]
-    print(frames)
 
     frame_numbers = random.sample(frames, args.number)
 
