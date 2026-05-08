@@ -12,9 +12,9 @@ from PIL import Image
 parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
 parser.add_argument("-m", "--model", type=str, default="best.pt", help="Path to YOLO model")
-parser.add_argument("-v", "--video", type=str, default="../videos/20260212_124301_f04acdba.mp4", help="Path to input video")
-parser.add_argument("-b", "--bboxes", type=str, default="../videos/20260212_124301_f04acdba-bboxes.csv", help="Path to input videos bounding boxes")
-parser.add_argument("-o", "--output", type=str, default="../videos/20260212_124301_f04acdba", help="Path to output video")
+parser.add_argument("-v", "--video", type=str, default="../videos/chosen-videos/Scenario-6-04.mp4", help="Path to input video")
+parser.add_argument("-b", "--bboxes", type=str, default="../videos/chosen-videos/Scenario-6-04-bboxes.csv", help="Path to input videos bounding boxes")
+parser.add_argument("-o", "--output", type=str, default="../videos/chosen-videos/Scenario-6-04", help="Path to output video")
 
 parser.add_argument(
     "-c",

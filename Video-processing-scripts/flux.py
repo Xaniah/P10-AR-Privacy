@@ -12,8 +12,8 @@ from PIL import Image
 parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
 parser.add_argument("-m", "--model", type=str, default="best.pt", help="Path to YOLO model")
-parser.add_argument("-i", "--input", type=str, default="../videos/frames", help="Path to input video")
-parser.add_argument("-o", "--output", type=str, default="../videos/flux", help="Path to output video")
+parser.add_argument("-i", "--input", type=str, default="../videos/frames/none", help="Path to input video")
+parser.add_argument("-o", "--output", type=str, default="../videos/frames/flux", help="Path to output video")
 
 parser.add_argument(
     "-d",
@@ -113,8 +113,8 @@ def get_bbox_file(img_path):
     stem = img_path.stem
     # remove last "-{frame_number}"
     base = "-".join(stem.split("-")[:-1])
-    
-    return img_path.parent.parent / f"{base}-bboxes.csv"
+   
+    return img_path.parent.parent.parent / f"chosen-videos/{base}-bboxes.csv"
 
 def load_bboxes(bbox_path, frame_number):
     bboxes = []
@@ -129,6 +129,7 @@ def load_bboxes(bbox_path, frame_number):
                 continue
 
             frame_nr, cls, x1, y1, x2, y2 = parts
+            print(frame_number + 1)
             if frame_number == frame_nr:
                 bboxes.append((cls, int(x1), int(y1), int(x2), int(y2)))
 
