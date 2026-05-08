@@ -49,6 +49,16 @@ ALLOWED = {
     "Laptop": {
         "prompt": "Replace the laptop with a different one displaying a privatized screen and keyboard, maintaining the same shape and color.",
         "bbx_scale": 1.5
+    },
+
+    "Clutter": {
+        "prompt": "Replace the clutter with a different realistic clutter, maintaining the same background. Maintain photorealism",
+        "bbx_scale": 1.5
+    },
+
+    "Photo frame": {
+        "prompt": "Replace the photo frame with a different realistic photo frame with a different realistic photo in.",
+        "bbx_scale": 1.5
     }
 }
 
