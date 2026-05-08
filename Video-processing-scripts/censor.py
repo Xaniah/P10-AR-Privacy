@@ -125,9 +125,6 @@ def process_video(video_path, censoring_method):
 
         out.write(cap_frame)
 
-        if args.debug:
-            cv2.imshow("YOLO Tracking", cap_frame)
-
         frame_number += 1
 
         # Quit with q
