@@ -129,8 +129,7 @@ def load_bboxes(bbox_path, frame_number):
                 continue
 
             frame_nr, cls, x1, y1, x2, y2 = parts
-            print(frame_number + 1)
-            if frame_number == frame_nr:
+            if int(frame_number) + 1 == int(frame_nr):
                 bboxes.append((cls, int(x1), int(y1), int(x2), int(y2)))
 
     return bboxes
