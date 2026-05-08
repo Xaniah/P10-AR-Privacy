@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+import re
 
 import cv2
 import csv
@@ -141,7 +142,15 @@ def censor(censoring_method):
     video_dir = Path(args.video)
 
     # Find all Scenario-x-yy.mp4 files
-    videos = sorted(video_dir.glob("Scenario-*-*.mp4"))
+
+    pattern = re.compile(r"^Scenario-[0-9]-[0-9]{2}\.mp4$")
+
+    videos = sorted(
+        [
+            p for p in video_dir.iterdir()
+            if p.is_file() and pattern.match(p.name)
+        ]
+    )
 
     if not videos:
         print(f"No matching videos found in {video_dir}")
