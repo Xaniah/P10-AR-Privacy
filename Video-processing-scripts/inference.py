@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 import cv2
 import time
@@ -10,9 +11,9 @@ from PIL import Image
 
 parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
-parser.add_argument("-m", "--model", type=str, default="best.pt", help="Path to YOLO model")
-parser.add_argument("-v", "--video", type=str, default="../videos/chosen-videos/Scenario-3-04.mp4", help="Path to input video")
-parser.add_argument("-o", "--output", type=str, default="../videos/chosen-videos/Scenario-3-04", help="Path to output video")
+parser.add_argument("-m", "--model", type=str, default="v2.pt", help="Path to YOLO model")
+parser.add_argument("-v", "--video", type=str, default="../videos/chosen-videos/", help="Path to input video")
+parser.add_argument("-o", "--output", type=str, default="../videos/chosen-videos/", help="Path to output video")
 parser.add_argument(
     "-d",
     "--debug",
@@ -42,13 +43,18 @@ ALLOWED = {
         "prompt": "Replace the traffic sign with a different privatized one, maintaining the same shape and color. Scramble the text."
             "Ensure the new sign is clearly visible and matches the location and context.",
         "bbx_scale": 1.5
+    },
+
+    "Laptop": {
+        "prompt": "Replace the laptop with a different one displaying a privatized screen and keyboard, maintaining the same shape and color.",
+        "bbx_scale": 1.5
     }
 }
 
 model = YOLO(args.model)
 
-def inference():
-    cap = cv2.VideoCapture(args.video)
+def process_video(video_path):
+    cap = cv2.VideoCapture(str(video_path))
 
     # Get video properties
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -56,72 +62,100 @@ def inference():
     fps    = cap.get(cv2.CAP_PROP_FPS)
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    out_bboxes = f"{args.output}-bboxes.csv"
-    out = cv2.VideoWriter(f"{args.output}-bboxes.mp4", fourcc, fps, (width, height))
+
+    stem = video_path.stem
+    out_bboxes = f"{args.output}/{stem}-bboxes.csv"
+    out_video  = f"{args.output}/{stem}-bboxes.mp4"
+
+    out = cv2.VideoWriter(out_video, fourcc, fps, (width, height))
+
     open(out_bboxes, "w").close()  # wipe file once
 
     prev_time = time.time()
     frame_number = 1
 
     with open(out_bboxes, "a") as f:
-        # Loop through the video frames
         while cap.isOpened():
-            # Read a frame from the video
             success, cap_frame = cap.read()
 
-            if success:
-                # Run YOLO26 tracking on the frame, persisting tracks between frames
-                results = model.track(cap_frame, persist=True, imgsz=1280)
-                r = results[0]
-
-                frame = r.orig_img
-                boxes = r.boxes
-
-                if boxes is not None:
-                    for box in boxes:
-                        x1, y1, x2, y2 = map(int, box.xyxy[0])
-                        cls = int(box.cls[0])
-                        if model.names[cls] not in ALLOWED:
-                            continue
-
-                        track_id = int(box.id[0]) if box.id is not None else -1
-
-                        label = f"{model.names[cls]} ID:{track_id}"
-
-                        f.write(f"{frame_number};{model.names[cls]};{x1};{y1};{x2};{y2}\n")
-
-                        if args.debug:
-                            cv2.putText(frame, label, (x1,y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
-
-                if args.debug:
-                    # ---- FPS calculation ----
-                    current_time = time.time()
-                    fps = 1 / (current_time - prev_time)
-                    prev_time = current_time
-
-                    cv2.putText(
-                        frame,
-                        f"FPS: {fps:.2f}",
-                        (20, 40),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (0, 255, 0),
-                        2
-                    )
-
-                out.write(frame)
-
-                cv2.imshow("YOLO Tracking", frame)
-                frame_number += 1
-
-                # Break the loop if 'q' is pressed
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    break
-            else:
-                # Break the loop if the end of the video is reached
+            if not success:
                 break
 
-        cap.release()
-        out.release()
+            # Run YOLO tracking
+            results = model.track(cap_frame, persist=True, imgsz=1280)
+            r = results[0]
 
+            frame = r.orig_img
+            boxes = r.boxes
+
+            if boxes is not None:
+                for box in boxes:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    cls = int(box.cls[0])
+
+                    if model.names[cls] not in ALLOWED:
+                        continue
+
+                    track_id = int(box.id[0]) if box.id is not None else -1
+
+                    label = f"{model.names[cls]} ID:{track_id}"
+
+                    f.write(
+                        f"{frame_number};{model.names[cls]};"
+                        f"{x1};{y1};{x2};{y2}\n"
+                    )
+
+                    if args.debug:
+                        cv2.putText(
+                            frame,
+                            label,
+                            (x1, y1 - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5,
+                            (255, 255, 255),
+                            2
+                        )
+
+            if args.debug:
+                current_time = time.time()
+                fps_display = 1 / (current_time - prev_time)
+                prev_time = current_time
+
+                cv2.putText(
+                    frame,
+                    f"FPS: {fps_display:.2f}",
+                    (20, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 255, 0),
+                    2
+                )
+
+                cv2.imshow("YOLO Tracking", frame)
+
+            out.write(frame)
+            frame_number += 1
+
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+
+    cap.release()
+    out.release()
+
+
+def inference():
+    video_dir = Path(args.video)
+
+    # Find all Scenario-x-yy.mp4 files
+    videos = sorted(video_dir.glob("Scenario-*-*.mp4"))
+
+    if not videos:
+        print(f"No matching videos found in {video_dir}")
+        return
+
+    for video_path in videos:
+        print(f"Processing: {video_path}")
+        process_video(video_path)
+
+    cv2.destroyAllWindows()
 inference()

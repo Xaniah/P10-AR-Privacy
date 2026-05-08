@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 import cv2
 import csv
@@ -11,10 +12,10 @@ from PIL import Image
 
 parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
-parser.add_argument("-m", "--model", type=str, default="best.pt", help="Path to YOLO model")
-parser.add_argument("-v", "--video", type=str, default="../videos/chosen-videos/Scenario-6-04.mp4", help="Path to input video")
-parser.add_argument("-b", "--bboxes", type=str, default="../videos/chosen-videos/Scenario-6-04-bboxes.csv", help="Path to input videos bounding boxes")
-parser.add_argument("-o", "--output", type=str, default="../videos/chosen-videos/Scenario-6-04", help="Path to output video")
+parser.add_argument("-m", "--model", type=str, default="v2.pt", help="Path to YOLO model")
+parser.add_argument("-v", "--video", type=str, default="../videos/chosen-videos/", help="Path to input video")
+parser.add_argument("-b", "--bboxes", type=str, default="../videos/chosen-videos/", help="Path to input videos bounding boxes")
+parser.add_argument("-o", "--output", type=str, default="../videos/chosen-videos/", help="Path to output video")
 
 parser.add_argument(
     "-c",
@@ -49,6 +50,11 @@ ALLOWED = {
         "prompt": "Replace the traffic sign with a different privatized one, maintaining the same shape and color. Scramble the text."
             "Ensure the new sign is clearly visible and matches the location and context.",
         "bbx_scale": 1.5
+    },
+
+    "Laptop": {
+        "prompt": "Replace the laptop with a different one displaying a privatized screen and keyboard, maintaining the same shape and color.",
+        "bbx_scale": 1.5
     }
 }
 
@@ -70,8 +76,8 @@ def blur(frame, _, x1, y1, x2, y2):
     roi = cv2.GaussianBlur(roi, (25,25), 30)
     frame[y1:y2, x1:x2] = roi
 
-def censor(censoring_method):
-    cap = cv2.VideoCapture(args.video)
+def process_video(video_path, censoring_method):
+    cap = cv2.VideoCapture(str(video_path))
 
     # Get video properties
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -79,37 +85,77 @@ def censor(censoring_method):
     fps    = cap.get(cv2.CAP_PROP_FPS)
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    out = cv2.VideoWriter(f"{args.output}-{censoring_method.__name__}.mp4", fourcc, fps, (width, height))
 
-    prev_time = time.time()
+    stem = video_path.stem
+
+    # Input bbox file generated during inference
+    bbox_file = f"{args.output}/{stem}-bboxes.csv"
+
+    # Output censored video
+    out_video = (
+        f"{args.output}/{stem}-{censoring_method.__name__}.mp4"
+    )
+
+    out = cv2.VideoWriter(out_video, fourcc, fps, (width, height))
+
     frame_number = 1
 
-    # Loop through the video frames
+    # Loop through video frames
     while cap.isOpened():
-        # Read a frame from the video
         success, cap_frame = cap.read()
 
-        if success:
-            bboxes = read_bboxes(frame_number)
-            for _, _, x1, y1, x2, y2 in bboxes:
-                x1, y1, x2, y2 = map(int, [x1, y1, x2, y2]) # Convert from str to int
-                censoring_method(cap_frame, _, x1, y1, x2, y2)
+        if not success:
+            break
 
-            out.write(cap_frame)
+        # Read bboxes for current frame
+        bboxes = read_bboxes(frame_number, bbox_file)
 
+        for _, _, x1, y1, x2, y2 in bboxes:
+            x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+
+            censoring_method(
+                cap_frame,
+                _,
+                x1,
+                y1,
+                x2,
+                y2
+            )
+
+        out.write(cap_frame)
+
+        if args.debug:
             cv2.imshow("YOLO Tracking", cap_frame)
 
-            frame_number += 1
+        frame_number += 1
 
-            # Break the loop if 'q' is pressed
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
-        else:
-            # Break the loop if the end of the video is reached
+        # Quit with q
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
     cap.release()
     out.release()
+
+
+def censor(censoring_method):
+    video_dir = Path(args.video)
+
+    # Find all Scenario-x-yy.mp4 files
+    videos = sorted(video_dir.glob("Scenario-*-*.mp4"))
+
+    if not videos:
+        print(f"No matching videos found in {video_dir}")
+        return
+
+    for video_path in videos:
+        print(
+            f"Processing {video_path.name} "
+            f"with {censoring_method.__name__}"
+        )
+
+        process_video(video_path, censoring_method)
+
+    cv2.destroyAllWindows()
 
 # Map string -> function for easy dispatch
 methods = {

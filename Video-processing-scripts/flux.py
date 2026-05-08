@@ -44,6 +44,11 @@ ALLOWED = {
         "prompt": "Replace the traffic sign with a different privatized one, maintaining the same shape and color. Scramble the text."
             "Ensure the new sign is clearly visible and matches the location and context.",
         "bbx_scale": 1.5
+    },
+
+    "Laptop": {
+        "prompt": "Replace the laptop with a different one displaying a privatized screen and keyboard, maintaining the same shape and color.",
+        "bbx_scale": 1.5
     }
 }
 
