@@ -11,7 +11,6 @@ from PIL import Image
 
 parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
-parser.add_argument("-m", "--model", type=str, default="best.pt", help="Path to YOLO model")
 parser.add_argument("-i", "--input", type=str, default="../videos/frames/none", help="Path to input video")
 parser.add_argument("-o", "--output", type=str, default="../videos/frames/flux", help="Path to output video")
 

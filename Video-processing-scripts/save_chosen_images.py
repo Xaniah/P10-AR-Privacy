@@ -5,7 +5,7 @@ import cv2
 
 parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
-parser.add_argument("-v", "--video", type=str, default="../videos/chosen-videos/Scenario-5-01.mp4", help="Path to input video")
+parser.add_argument("-v", "--video", type=str, default="../videos/chosen-videos/Scenario-2-05.mp4", help="Path to input video")
 parser.add_argument("-f", "--frames", nargs="+", type=int, help="Start and end frames for interval of userful frames")
 parser.add_argument("-e", "--exclude", nargs="+", type=int, help="List of frames to exclude")
 parser.add_argument("-n", "--number", type=int, default=4, help="Number of frames to save")
