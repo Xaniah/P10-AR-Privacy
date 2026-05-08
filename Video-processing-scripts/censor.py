@@ -60,10 +60,10 @@ ALLOWED = {
 
 model = YOLO(args.model)
 
-def read_bboxes(frame_number):
+def read_bboxes(frame_number, bbox_file):
     bboxes = []
 
-    with open(args.bboxes, newline="") as f:
+    with open(bbox_file, newline="") as f:
         bboxes = [row for row in csv.reader(f, delimiter=";") if row and int(row[0]) == frame_number]
 
     return bboxes
@@ -89,7 +89,7 @@ def process_video(video_path, censoring_method):
     stem = video_path.stem
 
     # Input bbox file generated during inference
-    bbox_file = f"{args.output}/{stem}-bboxes.csv"
+    bbox_file = f"{args.bboxes}/{stem}-bboxes.csv"
 
     # Output censored video
     out_video = (
