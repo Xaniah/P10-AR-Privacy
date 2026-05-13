@@ -1,9 +1,7 @@
 import argparse
 
 import cv2
-import time
 import numpy as np
-from ultralytics import YOLO
 import torch
 from pathlib import Path
 from diffusers import DiffusionPipeline
@@ -11,7 +9,7 @@ from PIL import Image
 
 parser = argparse.ArgumentParser(description="YOLO Video Tracking")
 
-parser.add_argument("-i", "--input", type=str, default="../videos/frames/none", help="Path to input video")
+parser.add_argument("-i", "--input", type=str, default="../videos/frames/to-flux", help="Path to input video")
 parser.add_argument("-o", "--output", type=str, default="../videos/frames/flux", help="Path to output video")
 
 parser.add_argument(
@@ -51,7 +49,7 @@ ALLOWED = {
     },
 
     "Clutter": {
-        "prompt": "Replace the clutter with a different realistic clutter, maintaining the same background. Maintain photorealism",
+        "prompt": "Remove everything like guitars, jackets, laundry baskets, etc., except walls. Maintain the same background in a realistic way.",
         "bbx_scale": 1.5
     },
 
